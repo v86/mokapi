@@ -1,17 +1,19 @@
-export default async function handler(req, res) {
-  const { slug, error, delay } = req.query;
+export default function handler(req, res) {
+  const { error, delay } = req.query;
 
   if (delay) {
-    await new Promise(r => setTimeout(r, parseInt(delay)));
+    const ms = parseInt(delay, 10);
+    if (!isNaN(ms)) {
+      setTimeout(() => {
+        res.status(error ? parseInt(error, 10) : 200).json({
+          message: 'Delayed mock response'
+        });
+      }, ms);
+      return;
+    }
   }
 
-  if (error) {
-    return res.status(parseInt(error)).send(`Mock error ${error}`);
-  }
-
-  res.status(200).json({
-    endpoint: `/${slug ? slug.join("/") : ""}`,
-    method: req.method,
-    message: "OK"
+  res.status(error ? parseInt(error, 10) : 200).json({
+    message: 'Mock response'
   });
 }
